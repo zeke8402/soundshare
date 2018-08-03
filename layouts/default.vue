@@ -16,7 +16,8 @@
           exact
         >
           <v-list-tile-action>
-            <v-icon v-html="item.icon"></v-icon>
+            <!-- <v-icon v-html="item.icon"></v-icon> -->
+            <font-awesome-icon icon="headphones" />
           </v-list-tile-action>
           <v-list-tile-content>
             <v-list-tile-title v-text="item.title"></v-list-tile-title>
@@ -88,7 +89,8 @@
         fixed: false,
         items: [
           { icon: 'apps', title: 'Welcome', to: '/' },
-          { icon: 'bubble_chart', title: 'Inspire', to: '/inspire' }
+          { icon: 'bubble_chart', title: 'Inspire', to: '/inspire' },
+          { icon: 'apps', title: 'Experiment #1', to: '/first-experiment' }
         ],
         miniVariant: false,
         right: true,
