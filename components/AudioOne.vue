@@ -32,19 +32,30 @@ export default {
 
       // load sound and set it as Audio object's buffer
       var audioLoader = new THREE.AudioLoader()
-      audioLoader.load('../assets/music/4against3.mp3', function (buffer) {
+      audioLoader.load('../music/4against3.mp3', function (buffer) {
         sound.setBuffer(buffer)
         sound.setLoop(true)
         sound.setVolume(0.5)
         sound.play()
       })
+
+      var analyser = new THREE.AudioAnalyser(sound, 32)
+      this.waitForTimer(analyser)
+    },
+    waitForTimer: async function (analyser) {
+      while (true) {
+        console.log(analyser.getFrequencyData())
+        await this.sleep(5000)
+      }
+    },
+    sleep: function (ms) {
+      return new Promise(resolve => setTimeout(resolve, ms))
     }
   },
   mounted () {
     this.init()
     this.play()
   }
-
 }
 </script>
 
