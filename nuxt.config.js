@@ -17,37 +17,23 @@ module.exports = {
   },
   plugins: [
     '~/plugins/vuetify.js',
+    '~/plugins/fontawesome.js'
   ],
   css: [
     '~/assets/style/app.styl',
+    '~/assets/style/global.styl'
   ],
   /*
   ** Customize the progress bar color
   */
   loading: { color: '#3B8070' },
   /*
-  ** Module Configuration
-  */
-  modules: [
-    //'nuxt-fontawesome',
-    //OR like this
-    ['nuxt-fontawesome', {
-      component: 'fa', 
-      imports: [
-        //import whole set
-        {
-          set: '@fortawesome/free-solid-svg-icons',
-          icons: ['fas']
-        }
-      ]
-    }]
-  ],
-  /*
   ** Build configuration
   */
   build: {
     vendor: [
       '~/plugins/vuetify.js',
+      '~/plugins/fontawesome.js'
     ],
     extractCSS: true,
     /*

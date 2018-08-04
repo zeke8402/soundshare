@@ -9,3 +9,7 @@ npm-debug.log
 
 # Nuxt generate
 dist
+
+# Sound files
+assets/music/*
+!assets/music/.gitkeep
