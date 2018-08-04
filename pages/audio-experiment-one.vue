@@ -1,19 +1,20 @@
 <template>
 <v-container fluid fill-height text-xs-center>
   <v-layout flex align-center justify-center>
-    <SquareTest :id="'one'" />
+    <AudioOne />
   </v-layout>
 </v-container>
 </template>
 
 <script>
-import SquareTest from '../components/SquareTest.vue'
+import AudioOne from '../components/AudioOne.vue'
 export default {
   components: {
-    SquareTest
+    AudioOne
   }
 }
 </script>
 
 <style>
+
 </style>

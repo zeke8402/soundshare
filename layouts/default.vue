@@ -91,7 +91,8 @@
         items: [
           { icon: 'apps', title: 'Welcome', to: '/' },
           { icon: 'bubble_chart', title: 'Inspire', to: '/inspire' },
-          { icon: 'apps', title: 'Experiment #1', to: '/first-experiment' }
+          { icon: 'apps', title: 'Experiment #1', to: '/first-experiment' },
+          { icon: 'stop', title: 'Audio Experiment 1', to: '/audio-experiment-one' }
         ],
         miniVariant: false,
         right: true,
