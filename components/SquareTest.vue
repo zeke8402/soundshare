@@ -48,7 +48,7 @@ export default {
 
 <style>
 .target {
-  width: 640px;
-  height: 640px;
+  width: 320px;
+  height: 320px;
 }
 </style>

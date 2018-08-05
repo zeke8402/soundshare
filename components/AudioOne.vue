@@ -2,15 +2,20 @@
 <main>
  <h1> Audio Test Component</h1> 
  <div class="square" id="canvas" />
+ <v-btn id="startButton" primary>Click to play</v-btn>
 </main>
 </template>
 
 <script>
 import * as THREE from 'three'
-var camera, renderer
+var camera, renderer, scene, sound
 
 export default {
   methods: {
+    attachListener: function () {
+      var playBtn = document.getElementById('startButton')
+      playBtn.addEventListener('click', this.init)
+    },
     init: function () {
       var container = document.getElementById('canvas')
       camera = new THREE.PerspectiveCamera(
@@ -21,48 +26,48 @@ export default {
       )
 
       renderer = new THREE.WebGLRenderer({ antialias: true })
+      renderer.setSize(container.clientWidth, container.clientHeight)
       container.appendChild(renderer.domElement)
-    },
-    play: function () {
+      scene = new THREE.Scene()
+
       var listener = new THREE.AudioListener()
       camera.add(listener)
 
       // create global audio source
-      var sound = new THREE.Audio(listener)
+      sound = new THREE.Audio(listener)
 
       // load sound and set it as Audio object's buffer
       var audioLoader = new THREE.AudioLoader()
       audioLoader.load('../music/4against3.mp3', function (buffer) {
         sound.setBuffer(buffer)
-        sound.setLoop(true)
+        sound.setLoop(false)
         sound.setVolume(0.5)
         sound.play()
       })
 
-      var analyser = new THREE.AudioAnalyser(sound, 32)
-      this.waitForTimer(analyser)
+      // var material = new THREE.LineBasicMaterial({ color: 0x0000ff })
+      var geometry = new THREE.Geometry()
+      geometry.vertices.push(new THREE.Vector3(-10, 0, 0))
+      geometry.vertices.push(new THREE.Vector3(0, 10, 0))
+      geometry.vertices.push(new THREE.Vector3(10, 0, 0))
+      // var line = new THREE.Line(geometry, material)
     },
-    waitForTimer: async function (analyser) {
-      while (true) {
-        console.log(analyser.getFrequencyData())
-        await this.sleep(5000)
-      }
-    },
-    sleep: function (ms) {
-      return new Promise(resolve => setTimeout(resolve, ms))
+    animate: function () {
+      requestAnimationFrame(this.animate)
+      // var analyser = new THREE.AudioAnalyser(sound, 32)
+      renderer.render(scene, camera)
     }
   },
   mounted () {
-    this.init()
-    this.play()
+    this.attachListener()
   }
 }
 </script>
 
 <style>
 .square {
-  width: 640px;
-  height: 640px;
+  width: 320px;
+  height: 320px;
   background-color: green;
 }
 </style>
