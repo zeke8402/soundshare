@@ -1,28 +1,28 @@
 <template>
-<main>
- <h1> Audio Test Component</h1> 
- <div class="square" id="canvas" />
- <v-btn id="startButton" primary>Click to play</v-btn>
-  <script id="vertexShader" type="x-shader/x-vertex">
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = vec4(position, 1.0);
-    }
-  </script>
-  <script id="fragmentShader" type="x-shader/x-fragment">
-    uniform sampler2D tAudioData;
-    varying vec2 vUv;
+  <main>
+    <h1> Audio Test Component</h1> 
+    <div class="square" id="audioTestOne" />
+      <v-btn id="startButton" primary>Click to play</v-btn>
+      <script id="vertexShader" type="x-shader/x-vertex">
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = vec4(position, 1.0);
+}
+</script>
+<script id="fragmentShader" type="x-shader/x-fragment">
+uniform sampler2D tAudioData;
+varying vec2 vUv;
 
-    void main() {
-      vec3 backgroundColor = vec3(0,0,0);
-      vec3 color = vec3(1.0, 1.0, 1.0);
-      float f = texture2D(tAudioData, vec2(vUv.x, 0.0)).r;
-      float i = step(vUv.y, f) * step(f-0.0125, vUv.y);
-      gl_FragColor = vec4(mix(backgroundColor, color, i), 1.0);
-    }
-  </script>
-</main>
+void main() {
+  vec3 backgroundColor = vec3(0,0,0);
+  vec3 color = vec3(1.0, 1.0, 1.0);
+  float f = texture2D(tAudioData, vec2(vUv.x, 0.0)).r;
+  float i = step(vUv.y, f) * step(f-0.0125, vUv.y);
+  gl_FragColor = vec4(mix(backgroundColor, color, i), 1.0);
+}
+</script>
+  </main>
 </template>
 
 <script>
@@ -36,74 +36,97 @@ export default {
       playBtn.addEventListener('click', this.init)
     },
     init: function () {
-      var container = document.getElementById('canvas')
-      camera = new THREE.PerspectiveCamera(
-        70,
-        container.clientWidth / container.clientHeight,
-        0.01,
-        10
-      )
+      const container = document.getElementById('audioTestOne')
+      const fftSize = 128
 
-      renderer = new THREE.WebGLRenderer({ antialias: true })
-      renderer.setSize(container.clientWidth, container.clientHeight)
-      container.appendChild(renderer.domElement)
+      renderer = new THREE.WebGLRenderer( { antialias: true } )
+      renderer.setSize( container.clientWidth, container.clientHeight)
+      renderer.setClearColor( 0x000000 )
+      renderer.setPixelRatio( window.devicePixelRatio )
+      container.appendChild( renderer.domElement )
+
       scene = new THREE.Scene()
 
-      var listener = new THREE.AudioListener()
-      camera.add(listener)
+      camera = new THREE.Camera()
 
-      // create global audio source
-      sound = new THREE.Audio(listener)
+      //
 
-      // load sound and set it as Audio object's buffer
-      var audioLoader = new THREE.AudioLoader()
-      audioLoader.load('../music/4against3.mp3', function (buffer) {
-        sound.setBuffer(buffer)
-        sound.setLoop(false)
-        sound.setVolume(0.5)
-        sound.play()
-      })
+      const listener = new THREE.AudioListener()
 
-      var fftSize = 128
+      const audio = new THREE.Audio( listener );
+      const file = '../music/doi-elite.mp3';
 
-      analyser = new THREE.AudioAnalyser(sound, fftSize)
+      if ( /(iPad|iPhone|iPod)/g.test( navigator.userAgent ) ) {
 
-      uniforms = {
-        tAudioData: {
-          value: new THREE.DataTexture(
-            analyser.data,
-            fftSize / 2,
-            1,
-            THREE.LuminanceFormat
-          )
-        }
+        const loader = new THREE.AudioLoader();
+        loader.load( file, function ( buffer ) {
+
+          audio.setBuffer( buffer );
+          audio.play();
+
+        } );
+
+      } else {
+
+        const mediaElement = new Audio( file );
+        mediaElement.play();
+
+        audio.setMediaElementSource( mediaElement );
+
       }
 
-      var material = new THREE.ShaderMaterial({
+      analyser = new THREE.AudioAnalyser( audio, fftSize );
+
+      //
+
+      const format = ( renderer.capabilities.isWebGL2 ) ? THREE.RedFormat : THREE.LuminanceFormat;
+
+      uniforms = {
+
+        tAudioData: { value: new THREE.DataTexture( analyser.data, fftSize / 2, 1, format ) }
+
+      };
+
+      const material = new THREE.ShaderMaterial( {
+
         uniforms: uniforms,
-        vertexShader: document.getElementById('vertexShader').textContent,
-        fragmentShader: document.getElementById('fragmentShader').textContent
-      })
-      var geometry = new THREE.PlaneBufferGeometry(1, 1)
-      var mesh = new THREE.Mesh(geometry, material)
-      scene.add(mesh)
+        vertexShader: document.getElementById( 'vertexShader' ).textContent,
+        fragmentShader: document.getElementById( 'fragmentShader' ).textContent
 
-      /*
-      // var material = new THREE.LineBasicMaterial({ color: 0x0000ff })
-      var geometry = new THREE.Geometry()
-      geometry.vertices.push(new THREE.Vector3(-10, 0, 0))
-      geometry.vertices.push(new THREE.Vector3(0, 10, 0))
-      geometry.vertices.push(new THREE.Vector3(10, 0, 0))
-      // var line = new THREE.Line(geometry, material)
-      */
+      } );
 
-      this.animate()
+      const geometry = new THREE.PlaneGeometry( 1, 1 );
+
+      const mesh = new THREE.Mesh( geometry, material );
+      scene.add( mesh );
+
+      //
+
+      window.addEventListener( 'resize', this.onWindowResize );
+
+      this.animate();
+
     },
-    animate: function () {
-      requestAnimationFrame(this.animate)
-      analyser.getFrequencyData()
-      uniforms.tAudioData.value.needsUpdate = true
-      renderer.render(scene, camera)
+    onWindowResize: function(){
+
+      renderer.setSize( window.innerWidth, window.innerHeight );
+
+    },
+    animate: function() {
+
+      requestAnimationFrame( this.animate );
+
+      this.render();
+
+    },
+    render: function() {
+
+      analyser.getFrequencyData();
+
+      uniforms.tAudioData.value.needsUpdate = true;
+
+      renderer.render( scene, camera );
+
     }
   },
   mounted () {
